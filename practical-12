@@ -1,13 +1,44 @@
-from itertools import permutations
 
-n = int(input("Enter number of cities: "))
-a = [list(map(int, input().split())) for _ in range(n)]
+#include <bits/stdc++.h>
+using namespace std;
 
-ans = float('inf')
+int n;
+int cost[10][10];
+int dp[1 << 10][10];
 
-for p in permutations(range(1, n)):
-    path = (0,) + p + (0,)
-    cost = sum(a[path[i]][path[i+1]] for i in range(n))
-    ans = min(ans, cost)
+int tsp(int mask, int pos) {
+    if (mask == (1 << n) - 1)
+        return cost[pos][0];
 
-print("Minimum Cost:", ans)
+    if (dp[mask][pos] != -1)
+        return dp[mask][pos];
+
+    int ans = INT_MAX;
+
+    for (int city = 0; city < n; city++) {
+        if (!(mask & (1 << city))) {
+            int newAns = cost[pos][city] +
+                         tsp(mask | (1 << city), city);
+
+            ans = min(ans, newAns);
+        }
+    }
+
+    return dp[mask][pos] = ans;
+}
+
+int main() {
+    cin >> n;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cin >> cost[i][j];
+        }
+    }
+
+    memset(dp, -1, sizeof(dp));
+
+    cout << tsp(1, 0);
+
+    return 0;
+}
